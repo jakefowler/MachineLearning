@@ -1,37 +1,57 @@
 import pandas as pd 
 
-data = pd.read_csv("test1_1.csv")
-print(data)
+
+
+def ratiosOfFeatures(data):
+    
+
+
 
 # Training Naive Bayes
+def trainingNaiveBayes(csvFileName):
+    """
+    Function that takes in the file name of a csv file in the same directory and 
+    trains off of that data.
+    Param: csvFileName -> csv file name. can include path if file isn't located in the same directory.
+    """
+    # data holds the full csv file in a dataframe
+    data = pd.read_csv("test1_1.csv")
+    print(data)
 
-positiveCounts = data.loc[data["Class"] == 1]
+    # positive Class is all the rows from the dataframe that have the value 1 for their class
+    positiveClass = data.loc[data["Class"] == 1]
+    print("Positive counts:\n", positiveClass)
 
-positiveClassProb = len(positiveCounts)/len(data)
+    # positiveClassProb is the probablility that the class is 1 instead of -1 in the main dataframe
+    positiveClassProb = len(positiveClass)/len(data)
+    print("The probablility that the class is positive is:", positiveClassProb)
 
-print("The probablility that the class is positive is:", positiveClassProb)
+    # The probablility that the class is -1
+    negativeClassProb = 1 - positiveClassProb
+    print("The probablility that the class is negative is:", negativeClassProb)
 
-negativeClassProb = 1 - positiveClassProb
+    # This sums up all the features in the posotive class to use for getting the ratios
+    sumOfPositiveCounts = positiveClass.sum()
+    print("Sum of positive values in the positive class:\n",sumOfPositiveCounts)
 
-print("The probablility that the class is negative is:", negativeClassProb)
+    # These are the ratios for the features being positive in the positive class
+    positiveClassPositiveRatios = sumOfPositiveCounts.truediv(len(positiveClass))
+    print("Positive class positive features ratios are:\n", positiveClassPositiveRatios)
 
-print("Positive counts:\n", positiveCounts)
+    # The ratios from the features being negative in the posotive class
+    positiveClassNegativeRatios = 1 - positiveClassPositiveRatios
+    print("Positive Classes negative feature ratios are:\n", positiveClassNegativeRatios)
 
-sumOfPositiveCounts = positiveCounts.sum()
+    negativeClass = data.loc[data["Class"] == -1] 
+    print("Negative class valuses are:\n{} and the type of Negative Count is:\n{}".format(negativeClass, type(negativeClass)))
 
-print("Sum of positive counts:\n",sumOfPositiveCounts)
+    negativeClassPositiveRatios = negativeClass.sum().truediv(len(negativeClass))
 
-negativeCounts = data.loc[data["Class"] == -1] 
+    print("Negative class positive ratios are:\n",negativeClassPositiveRatios)
 
-print("Negative counts are:\n{} and the type of Negative Counts is:\n{}".format(negativeCounts, type(negativeCounts)))
+    negativeClassNegativeRatios = 1 - negativeClassPositiveRatios
 
-negativeRatios = negativeCounts.sum().truediv(len(negativeCounts))
-
-print("Negative Ratios are:\n",negativeRatios)
-
-positiveRatios = sumOfPositiveCounts.truediv(len(positiveCounts))
-
-print("Positive Ratios are:\n", positiveRatios)
+    print("The negative class negative ratios are:\n", negativeClassNegativeRatios)
 
 # Testing Naive Bayes on the same data set
 

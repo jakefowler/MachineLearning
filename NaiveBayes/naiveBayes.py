@@ -1,5 +1,6 @@
 import pandas as pd 
 import math
+import time
 
 def probablilityOfClass(data):
     """
@@ -85,12 +86,11 @@ def testingNaiveBayes(positiveClassProb, negativeClassProb,
     
     #for row in data.iterrows():
     for i in range(len(dataAsList)):
-        classPositiveChance = 0.0
-        classNegativeChance = 0.0
-        index = 0
+        classPositiveChance = math.log(positiveClassProb) 
+        classNegativeChance = math.log(negativeClassProb)
         for j in range(len(dataAsList[i])-1):
          #   print("row = ", row)
-            print("j = ", j)
+           # print("j = ", j)
            # print("index = ", index)
             #print("positiveClassPositiveRatios at index = ", positiveClassPositiveRatios[j])
             #print("positiveClassNegativeRatios at index = ", positiveClassNegativeRatios[j])
@@ -106,26 +106,45 @@ def testingNaiveBayes(positiveClassProb, negativeClassProb,
                 #print("Class Positive Chance is: ", classPositiveChance)
                 classNegativeChance += math.log(0.00001 if negativeClassNegativeRatios[j] == 0 else negativeClassNegativeRatios[j])
                 #print("Class Negative Chance is: ", classNegativeChance)
-            index += 1
         #print("Positive Class Chance is: {} \nNegative Class Chance is: {}",classPositiveChance, classNegativeChance)
         if classPositiveChance > classNegativeChance:
             pred.append(1)
         else:
             pred.append(-1)
     print(data)
+    print(data["Class"])
     print("Prediciton is:\n", pred)
 
+    return data["Class"].values.tolist(), pred
+
+def calculateAccuracy(desiredValues, predictedValues):
+    correctValues = []
+    for i in range(len(desiredValues)):
+        if desiredValues[i] == predictedValues[i]:
+            correctValues.append(1)
+    accuracy = len(correctValues)/len(desiredValues)
+    return accuracy
+
 def main():
+
+    start_time = time.time()
     # Get all the variables through training on the data
     (positiveClassProb, negativeClassProb, positiveClassPositiveRatios, 
     positiveClassNegativeRatios, negativeClassPositiveRatios, 
-    negativeClassNegativeRatios) = trainingNaiveBayes("test1_4.csv")
+    negativeClassNegativeRatios) = trainingNaiveBayes("test1_2.csv")
+    print("Training on the data took %s seconds" % (time.time() - start_time)
 
+    start_time = time.time()
     # Pass all the trained variables into the testing function 
     # along with the file name of the testing data
-    testingNaiveBayes(positiveClassProb, negativeClassProb, 
+    desiredValues, predictedValues = testingNaiveBayes(positiveClassProb, negativeClassProb, 
     positiveClassPositiveRatios, positiveClassNegativeRatios,
-    negativeClassPositiveRatios, negativeClassNegativeRatios, "test1_4.csv")
+    negativeClassPositiveRatios, negativeClassNegativeRatios, "test1_2.csv")
+    print("Testing the data took %s seconds" % (time.time() - start_time)
+
+    accuracy = calculateAccuracy(desiredValues, predictedValues)
+
+    print("The accuracy on this data set is: ", accuracy)
 
 
 main()

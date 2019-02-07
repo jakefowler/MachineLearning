@@ -11,19 +11,12 @@ def probablilityOfClass(data):
     """
     # positive Class is all the rows from the dataframe that have the value 1 for their class
     positiveClass = data.loc[data["Class"] == 1]
-    print("Positive class:\n", positiveClass)
     
     # positiveClassProb is the probablility that the class is 1 instead of -1 in the main dataframe
     positiveClassProb = len(positiveClass)/len(data)
-    print("The probablility that the class is positive is:", positiveClassProb)
-
-    # negative Class is all the rows from the dataframe that have the value -1 for their class
-    negativeClass = data.loc[data["Class"] == -1]
-    print("Negative class:\n", negativeClass) 
 
     # The probablility that the class is -1
     negativeClassProb = 1 - positiveClassProb
-    print("The probablility that the class is negative is:", negativeClassProb)
 
     return positiveClassProb, negativeClassProb
 
@@ -35,15 +28,12 @@ def ratiosOfFeatures(data):
     """
     # This sums up all the features in the class to use for getting the ratios
     sumOfPositiveCounts = data.sum()
-    print("Sum of positive values in the class:\n",sumOfPositiveCounts)
 
     # These are the ratios for the features being positive in the class
     positiveFeaturesRatios = sumOfPositiveCounts.truediv(len(data))
-    print("The classes positive features ratios are:\n", positiveFeaturesRatios)
 
     # The ratios from the features being negative in the class
     negativeFeaturesRatios = 1 - positiveFeaturesRatios
-    print("The classes negative feature ratios are:\n", negativeFeaturesRatios)
     
     return positiveFeaturesRatios, negativeFeaturesRatios
 
@@ -78,46 +68,38 @@ def trainingNaiveBayes(csvFileName):
 def testingNaiveBayes(positiveClassProb, negativeClassProb, 
     positiveClassPositiveRatios, positiveClassNegativeRatios,
     negativeClassPositiveRatios, negativeClassNegativeRatios, testDataFileName):
+    """
+    Function that takes in the ratios of the features to classes and ratios of classes to each other.
+    It the makes a prediction for the data set from the filename that is given.
+    """
     data = pd.read_csv(testDataFileName)
     pred = []
 
     dataAsList = data.values.tolist()
-    print("Data converted to a list \n",dataAsList)
     
-    #for row in data.iterrows():
     for i in range(len(dataAsList)):
         classPositiveChance = math.log(positiveClassProb) 
         classNegativeChance = math.log(negativeClassProb)
         for j in range(len(dataAsList[i])-1):
-         #   print("row = ", row)
-           # print("j = ", j)
-           # print("index = ", index)
-            #print("positiveClassPositiveRatios at index = ", positiveClassPositiveRatios[j])
-            #print("positiveClassNegativeRatios at index = ", positiveClassNegativeRatios[j])
-            #print("negativeClassPositiveRatios at index = ", negativeClassPositiveRatios[j])
-            #print("negativeClassNegativeRatios at index = ", negativeClassNegativeRatios[j])
             if dataAsList[i][j] is 1:
                 classPositiveChance += math.log(0.00001 if positiveClassPositiveRatios[j] == 0 else positiveClassPositiveRatios[j])
-                #print("Class Positive Chance is: ", classPositiveChance)
                 classNegativeChance += math.log(0.00001 if negativeClassPositiveRatios[j] == 0 else negativeClassPositiveRatios[j])
-                #print("Class Negative Chance is: ", classNegativeChance)
             if dataAsList[i][j] is 0:
                 classPositiveChance += math.log(0.00001 if positiveClassNegativeRatios[j] == 0 else positiveClassNegativeRatios[j])
-                #print("Class Positive Chance is: ", classPositiveChance)
                 classNegativeChance += math.log(0.00001 if negativeClassNegativeRatios[j] == 0 else negativeClassNegativeRatios[j])
-                #print("Class Negative Chance is: ", classNegativeChance)
-        #print("Positive Class Chance is: {} \nNegative Class Chance is: {}",classPositiveChance, classNegativeChance)
         if classPositiveChance > classNegativeChance:
             pred.append(1)
         else:
             pred.append(-1)
-    print(data)
-    print(data["Class"])
-    print("Prediciton is:\n", pred)
-
     return data["Class"].values.tolist(), pred
 
 def calculateAccuracy(desiredValues, predictedValues):
+    """
+    Function that calculates the accuracy of a correct list of values and a predicted list.
+    Param: desiredValues -> correct list of values
+           predictedValues -> list of predictions
+    Returns: accuracy value of 0 to 1
+    """
     correctValues = []
     for i in range(len(desiredValues)):
         if desiredValues[i] == predictedValues[i]:
@@ -126,31 +108,26 @@ def calculateAccuracy(desiredValues, predictedValues):
     return accuracy
 
 def main():
-
+    fileName = "test1_5.csv"
     start_time = time.time()
     # Get all the variables through training on the data
     (positiveClassProb, negativeClassProb, positiveClassPositiveRatios, 
     positiveClassNegativeRatios, negativeClassPositiveRatios, 
-    negativeClassNegativeRatios) = trainingNaiveBayes("test1_2.csv")
-    print("Training on the data took %s seconds" % (time.time() - start_time)
+    negativeClassNegativeRatios) = trainingNaiveBayes(fileName)
+    print("Training on the data took %s seconds" % (time.time() - start_time))
 
     start_time = time.time()
     # Pass all the trained variables into the testing function 
     # along with the file name of the testing data
     desiredValues, predictedValues = testingNaiveBayes(positiveClassProb, negativeClassProb, 
     positiveClassPositiveRatios, positiveClassNegativeRatios,
-    negativeClassPositiveRatios, negativeClassNegativeRatios, "test1_2.csv")
-    print("Testing the data took %s seconds" % (time.time() - start_time)
+    negativeClassPositiveRatios, negativeClassNegativeRatios, fileName)
+    print("Testing the data took %s seconds" % (time.time() - start_time))
+    print("The Correct values are:\n", desiredValues)
+    print("Predicted values are:\n", predictedValues)
 
     accuracy = calculateAccuracy(desiredValues, predictedValues)
-
     print("The accuracy on this data set is: ", accuracy)
 
-
-main()
-# Testing Naive Bayes on the same data set
-
-#prediction = pd.DataFrame()
-
-
-#data.loc[:,"Prediciton"] = prediction[0]
+if __name__ == "__main__":
+    main()

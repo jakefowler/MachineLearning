@@ -16,10 +16,11 @@ def trainPerceptron(csvFileName):
     """
     epochAccuracies = []
     totalAccuracies = []
-    learningRate = 0.01
+    learningRate = 0.001
     data = pd.read_csv(csvFileName)
     scaler = MinMaxScaler().fit(data.iloc[:, :-1])
     normalizedData = scaler.transform(data.iloc[:, :-1])
+    # normalizedData = data.iloc[:, :-1] # unnormalized
     bias = np.ones((768,1), dtype=np.float64)
     normalizedData = np.append(normalizedData, bias, axis=1)
     weights = np.array(np.random.randn(len(data.columns),1))
@@ -45,19 +46,14 @@ def trainPerceptron(csvFileName):
         print("The average accuracy over the fold is", np.mean(epochAccuracies))
 
         plt.plot(epochAccuracies, "bo")
+        plt.ylabel("Accuracy")
+        plt.xlabel("Number of Epochs")
+        plt.title("Perceptron at learning rate 0.001")
         plt.show()
         weights = np.array(np.random.randn(len(data.columns),1))
         epochAccuracies = []
     print("Average accuracy for this perceptron is", np.mean(totalAccuracies))
     print("The learning rate was set to", learningRate)
-
- # need to bound the error. Average all the error rates and normalize
- # number of epochs
- # each epoch needs an accuracy score
- # an epoch is one run through the training data and then test on that
- # average all the accuracies of the folds
- # weights carry over for each epic on each fold
- # 
 
 def calculateAccuracy(correct, prediction):
     return accuracy_score(correct, prediction)
